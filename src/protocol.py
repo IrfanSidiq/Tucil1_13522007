@@ -2,14 +2,13 @@ from typing import List, Tuple
 import random
 import time
 import datetime
-import os
+import sys
 
 class BreachProtocol:
     possible_solution_buffers = []
     possible_solution_coordinates = []
     
     def __init__(self, matrix: List[List[str]], sequences: List[str], sequence_rewards: List[int], buffer_size: int, path: str):
-        self.filename = os.path.basename(path) if path != "" else path
         self.matrix = matrix
         self.sequences = sequences
         self.sequence_rewards = sequence_rewards
@@ -17,7 +16,7 @@ class BreachProtocol:
         self.visited = [[False for _ in range(len(matrix[0]))] for _ in range(len(matrix))]
     
     def load_file(path: str):
-        default_load_path = "input/"
+        default_load_path = "../test/input/"
         file = open(default_load_path + path, "r")
         f = file.readlines()
 
@@ -62,11 +61,20 @@ class BreachProtocol:
         
         for i in range(number_of_sequences):
             sequence = ""
-            sequence_length = random.randint(1, max_sequence_size)
+            sequence_length = random.randint(2, max_sequence_size)
+            contains_duplicate_sequence = True
             
-            for _ in range(sequence_length):
-                idx = random.randint(0, len(tokens) - 1)
-                sequence += tokens[idx] + " "
+            while contains_duplicate_sequence:
+                sequence = ""            
+                for _ in range(sequence_length):
+                    idx = random.randint(0, len(tokens) - 1)
+                    sequence += tokens[idx] + " "
+                
+                contains_duplicate_sequence = False
+                for j in range(i):
+                    if sequence == sequences[j]:
+                        contains_duplicate_sequence = True
+                        break
             
             sequences[i] = sequence
             sequence_rewards[i] = random.randint(1, 5) * 2 * sequence_length
@@ -92,36 +100,42 @@ class BreachProtocol:
         
         end_time = time.time()
         self.execution_time = end_time - start_time
-        
-        self.display_solution()
 
     def generate_possible_solutions(self, row: int, col: int, current_buffer: List[str], current_coordinates: List[Tuple[int, int]], horizontal: bool):
         if len(current_buffer) == self.buffer_size:
             self.possible_solution_buffers.append(current_buffer)
             self.possible_solution_coordinates.append(current_coordinates)
             return
-
+        
+        continue_search = False
         if horizontal:
             for i in range(len(self.matrix[0])):
                 if not self.visited[row][i]:
+                    continue_search = True
                     self.visited[row][i] = True
                     self.generate_possible_solutions(
                         row, i,
                         current_buffer + [self.matrix[row][i]],
                         current_coordinates + [(i + 1, row + 1)],
-                        False if horizontal else True)
+                        False)
                     self.visited[row][i] = False
         else:
             for i in range(len(self.matrix)):
                 if not self.visited[i][col]:
+                    continue_search = True
                     self.visited[i][col] = True
                     self.generate_possible_solutions(
                         i, col,
                         current_buffer + [self.matrix[i][col]],
                         current_coordinates + [(col + 1, i + 1)],
-                        False if horizontal else True)
+                        True)
                     self.visited[i][col] = False
                     
+        
+        if not continue_search:
+            self.possible_solution_buffers.append(current_buffer)
+            self.possible_solution_coordinates.append(current_coordinates)
+                            
     def choose_best_solution(self):
         best_solution_index = -999
         max_reward = 0
@@ -140,6 +154,9 @@ class BreachProtocol:
         self.max_reward = max_reward
     
     def contains_sequence(self, buffer: List[str], sequence: List[str]):
+        if len(sequence) > len(buffer):
+            return False
+        
         i = 0
         found = False
         
@@ -163,27 +180,31 @@ class BreachProtocol:
         print(f"Reward maksimal: {self.max_reward}")
         
         if self.best_solution_index != -999:     # Solution found
-            print(f"Isi buffer: {self.possible_solution_buffers[self.best_solution_index]}")
-            print(f"Koordinat tiap token: {self.possible_solution_coordinates[self.best_solution_index]}")
+            print(f"Isi buffer:", end="")
+            for cell in self.possible_solution_buffers[self.best_solution_index]:
+                print(f" {cell}", end="")
+            print(f"\nKoordinat tiap token:")
+            for coordinate in self.possible_solution_coordinates[self.best_solution_index]:
+                print(f"{coordinate[0]}, {coordinate[1]}")
         else:
             print("Tidak ada solusi")
         
-        print(f"Waktu eksekusi: {round(self.execution_time * 1000)} ms")
+        print(f"\nWaktu eksekusi: {round(self.execution_time * 1000)} ms")
         
     def export_file(self):
-        default_save_path = "output/"
+        default_save_path = "../test/output/"
         file_name = str(datetime.datetime.now().replace(microsecond=0)).replace(":", "-") + ".txt"
         
         with open(default_save_path + file_name, "w") as file:
-            if self.filename != "":
-                file.write(f"Nama file: {self.filename}\n\n")
-                
-            file.write(f"Reward maksimal: {self.max_reward}\n")
+            file.write(f"{self.max_reward}\n")
             
             if self.best_solution_index != -999:
-                file.write(f"Isi buffer: {self.possible_solution_buffers[self.best_solution_index]}\n")
-                file.write(f"Koordinat tiap token: {self.possible_solution_coordinates[self.best_solution_index]}\n")
+                for cell in self.possible_solution_buffers[self.best_solution_index]:
+                    file.write(f"{cell} ")
+                file.write("\n")
+                for coordinate in self.possible_solution_coordinates[self.best_solution_index]:
+                    file.write(f"{coordinate[0]}, {coordinate[1]}\n")
             else:
                 file.write("Tidak ada solusi\n")
                 
-            file.write(f"Waktu eksekusi: {round(self.execution_time * 1000)} ms")
+            file.write(f"\n{round(self.execution_time * 1000)} ms")

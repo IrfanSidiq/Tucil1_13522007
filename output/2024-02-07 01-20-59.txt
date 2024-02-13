@@ -1,4 +1,0 @@
-Reward maksimal: 70
-Isi buffer: ['32', '6A', '21', 'BD', '21', '5B', '32']
-Koordinat tiap token: [(2, 1), (2, 7), (1, 7), (1, 2), (6, 2), (6, 1), (3, 1)]
-Waktu eksekusi: 431 ms
