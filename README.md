@@ -23,10 +23,11 @@ matriks lalu bergerak secara vertikal, horizontal, vertikal, horizontal (bergant
 ## Setup dan Penggunaan
 
 1. Clone repository ini dengan perintah `git clone https://github.com/IrfanSidiq/Tucil1_13522007.git`
-2. Pindah current folder ke folder src
+2. Pindah current folder ke folder `src`
 3. Untuk menjalankan program, ketik command berikut pada terminal: `python main.py` atau `python3 main.py`
-4. Bila ingin menginput melalui file, masukkan file txt kedalam folder `input\` lalu ketikkan nama file saat diprompt oleh program.
-Format dari file txt adalah sebagai berikut:
+4. Bila ingin menginput melalui file, masukkan file txt kedalam folder `test\input\` lalu ketikkan nama file saat diprompt oleh program.
+   Format dari file txt adalah sebagai berikut:
+
 ```
 buffer_size
 matrix_width matrix_height
@@ -40,7 +41,8 @@ sequences_2_reward
 sequences_n
 sequences_n_reward
 ```
-Contoh dapat dilihat pada file txt pada folder input.<br>
+
+Contoh file dapat dilihat pada file txt pada folder `test\input`.<br>
 
 ## Struktur File
 
@@ -71,6 +73,6 @@ Contoh dapat dilihat pada file txt pada folder input.<br>
 
 ## Kreator
 
-| NIM      | Nama                      |
-| -------- | ------------------------- |
-| 13522007 | Irfan Sidiq Permana       |
+| NIM      | Nama                |
+| -------- | ------------------- |
+| 13522007 | Irfan Sidiq Permana |
